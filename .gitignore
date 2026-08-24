@@ -1,0 +1,24 @@
+# Memory files
+CLAUDE.md
+GEMINI.md
+ANTIGRAVITY.md
+PROJECT.md
+STATUS.md
+Lyric.md
+
+# Backups and temp files
+backup.kt
+*.apk
+
+# Android Studio / Gradle
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build/
+/app/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+local.properties

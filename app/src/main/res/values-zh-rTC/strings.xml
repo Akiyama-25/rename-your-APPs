@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rename APPs</string>
+    <string name="search_hint">搜尋應用</string>
+    <string name="status_unconfigured">未設定</string>
+    <string name="dialog_title">修改應用程式名稱</string>
+    <string name="original_name">原始名稱：%1$s</string>
+    <string name="package_name">應用套件名稱：%1$s</string>
+    <string name="custom_name_hint">請輸入新應用程式名稱</string>
+    <string name="action_save">儲存修改</string>
+    <string name="action_reset">恢復預設</string>
+    <string name="action_cancel">取消</string>
+    <string name="toast_saved">已修改 %1$s 的名稱，重啟啟動器生效</string>
+    <string name="toast_cleared">已恢復 %1$s 的預設名稱</string>
+    <string name="loading_apps">正在載入已安裝應用程式列表…</string>
+    <string name="no_apps_found">未找到相符的應用程式</string>
+    <string name="app_count_summary">已設定 %1$d 個 / 共 %2$d 個應用程式</string>
+    <string name="module_not_activated">模組尚未在 LSPosed 中啟用！</string>
+    <string name="current_system_launcher">目前系統桌面</string>
+    <string name="current_system_launcher_format">目前系統桌面: %1$s</string>
+    <string name="info_miui_cache">注意：部分系統桌面（如 MIUI/HyperOS）會深度快取圖示與名稱。修改後若未生效，請嘗試清除系統桌面應用程式資料（或快取）、切換系統主題或直接重啟手機以強制更新。</string>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory app:title="@string/pref_category_ui">
+        <ListPreference
+            app:key="pref_theme"
+            app:title="@string/pref_theme_title"
+            app:defaultValue="auto"
+            app:entries="@array/theme_entries"
+            app:entryValues="@array/theme_values"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            app:key="pref_language"
+            app:title="@string/pref_language_title"
+            app:defaultValue="auto"
+            app:entries="@array/language_entries"
+            app:entryValues="@array/language_values"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/pref_category_sort">
+        <ListPreference
+            app:key="pref_sort_by"
+            app:title="@string/pref_sort_by_title"
+            app:defaultValue="app_name"
+            app:entries="@array/sort_by_entries"
+            app:entryValues="@array/sort_by_values"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            app:key="pref_sort_order"
+            app:title="@string/pref_sort_order_title"
+            app:defaultValue="asc"
+            app:entries="@array/sort_order_entries"
+            app:entryValues="@array/sort_order_values"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/pref_category_status">
+        <Preference
+            app:key="pref_status_root"
+            app:title="@string/pref_status_root_title"
+            app:summary="Checking..." />
+        <Preference
+            app:key="pref_status_lsposed"
+            app:title="@string/pref_status_lsposed_title"
+            app:summary="Checking..." />
+    </PreferenceCategory>
+</PreferenceScreen>

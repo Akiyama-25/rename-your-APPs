@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rename APPs</string>
+    <string name="search_hint">搜索应用</string>
+    <string name="status_unconfigured">未配置</string>
+    <string name="dialog_title">修改应用名称</string>
+    <string name="original_name">原始名称：%1$s</string>
+    <string name="package_name">应用包名：%1$s</string>
+    <string name="custom_name_hint">请输入新应用名称</string>
+    <string name="action_save">保存修改</string>
+    <string name="action_reset">恢复默认</string>
+    <string name="action_cancel">取消</string>
+    <string name="toast_saved">已修改 %1$s 的名称，重启桌面生效</string>
+    <string name="toast_cleared">已恢复 %1$s 的默认名称</string>
+    <string name="loading_apps">正在加载已安装应用列表…</string>
+    <string name="no_apps_found">未找到匹配的应用</string>
+    <string name="app_count_summary">已配置 %1$d 个 / 共 %2$d 个应用</string>
+    <string name="module_not_activated">模块尚未在 LSPosed 中激活！</string>
+    <string name="module_activated">模块已在 LSPosed 中启用</string>
+    <string name="module_activation_hint">模块未在 LSPosed 中启用，请前往 LSPosed 启用并勾选作用域</string>
+    <string name="current_system_launcher">当前系统桌面</string>
+    <string name="current_system_launcher_format">当前系统桌面: %1$s</string>
+    <string name="info_miui_cache">注意：部分系统桌面（如 MIUI/HyperOS）会深度缓存图标与名称。修改后如果未生效，请尝试清除系统桌面应用数据（或缓存）、切换系统主题或直接重启手机以强制刷新。</string>
+    <string name="menu_more">更多</string>
+    <string name="menu_restart_launcher">重启桌面</string>
+    <string name="toast_restart_launcher_success">尝试停止桌面进程</string>
+    <string name="toast_restart_launcher_fail">需要 Root 权限才能直接重启桌面</string>
+    <string name="menu_settings">APP设置</string>
+    <string name="header_configured">已修改的APP</string>
+    <string name="header_unconfigured">未修改的APP</string>
+</resources>
