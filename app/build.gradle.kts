@@ -11,8 +11,8 @@ android {
         applicationId = "Akari.LSPosed.namechanger"
         minSdk = 29
         targetSdk = 34
-        versionCode = 100
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
