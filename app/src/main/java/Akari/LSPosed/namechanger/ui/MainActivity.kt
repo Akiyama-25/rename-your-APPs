@@ -108,13 +108,42 @@ class MainActivity : AppCompatActivity() {
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.action_restart_launcher -> {
-                        val launcherPkg = PrefUtils.getSysPrefs(this).getString(PrefUtils.KEY_SYSTEM_LAUNCHER, null)
-                        if (launcherPkg != null) {
-                            try {
-                                Runtime.getRuntime().exec(arrayOf("su", "-c", "am force-stop \$launcherPkg"))
-                                Toast.makeText(this, R.string.toast_restart_launcher_success, Toast.LENGTH_SHORT).show()
+                        var targetPkg = PrefUtils.getSysPrefs(this).getString(PrefUtils.KEY_SYSTEM_LAUNCHER, null)
+                        if (targetPkg.isNullOrEmpty()) {
+                            val homeIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                            val resolveInfo = packageManager.resolveActivity(homeIntent, 0)
+                            targetPkg = resolveInfo?.activityInfo?.packageName
+                        }
+
+                        if (targetPkg.isNullOrEmpty()) {
+                            Toast.makeText(this, "未找到目标桌面包名，请在设置中配置", Toast.LENGTH_SHORT).show()
+                            return@setOnMenuItemClickListener true
+                        }
+
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            val isSuccess = try {
+                                val command = """
+                                    pid=${'$'}(pidof $targetPkg)
+                                    if [ -n "${'$'}pid" ]; then
+                                        kill -9 ${'$'}pid
+                                    fi
+                                    /system/bin/am force-stop $targetPkg
+                                """.trimIndent()
+
+                                val process = Runtime.getRuntime().exec(arrayOf("su", "-c", command))
+                                process.outputStream.close()
+                                process.waitFor() == 0
                             } catch (e: Exception) {
-                                Toast.makeText(this, "Root denied or failed", Toast.LENGTH_SHORT).show()
+                                e.printStackTrace()
+                                false
+                            }
+
+                            withContext(Dispatchers.Main) {
+                                if (isSuccess) {
+                                    Toast.makeText(this@MainActivity, R.string.toast_restart_launcher_success, Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(this@MainActivity, "停止桌面失败：请检查 Root 授权状态", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                         true
