@@ -4,6 +4,10 @@
 
 ---
 
+Only tested on default Launcher of HyperOS 3 / Xiaomi 14(houji), can't promise it can work on other Launcher.
+
+---
+
 ## Table of Contents
 
 - [Project Introduction](#project-introduction)
