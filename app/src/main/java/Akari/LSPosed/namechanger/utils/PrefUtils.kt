@@ -14,11 +14,11 @@ object PrefUtils {
     const val KEY_SORT_ORDER = "pref_sort_order"
 
     fun getPrefs(context: Context): SharedPreferences {
-        return context.getSharedPreferences(PREF_NAME, Context.MODE_WORLD_READABLE)
+        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
     fun getSysPrefs(context: Context): SharedPreferences {
-        return context.getSharedPreferences(SYS_PREF_NAME, Context.MODE_WORLD_READABLE)
+        return context.getSharedPreferences(SYS_PREF_NAME, Context.MODE_PRIVATE)
     }
 
     fun saveSystemLauncher(context: Context, packageName: String) {

@@ -9,6 +9,8 @@ Lyric.md
 # Backups and temp files
 backup.kt
 *.apk
+push.sh
+*.log
 
 # Android Studio / Gradle
 *.iml

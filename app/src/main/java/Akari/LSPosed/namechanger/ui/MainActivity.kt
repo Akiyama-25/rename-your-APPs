@@ -23,7 +23,7 @@ import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     override fun attachBaseContext(newBase: android.content.Context) {
-        val prefs = newBase.getSharedPreferences(PrefUtils.PREF_NAME, android.content.Context.MODE_WORLD_READABLE)
+        val prefs = newBase.getSharedPreferences(PrefUtils.PREF_NAME, android.content.Context.MODE_PRIVATE)
         val lang = prefs.getString(PrefUtils.KEY_LANGUAGE, "auto")
         if (lang == "zh" || lang == "en") {
             val locale = if (lang == "zh") Locale("zh", "CN") else Locale.ENGLISH
