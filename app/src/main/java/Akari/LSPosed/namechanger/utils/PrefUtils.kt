@@ -13,12 +13,32 @@ object PrefUtils {
     const val KEY_SORT_BY = "pref_sort_by"
     const val KEY_SORT_ORDER = "pref_sort_order"
 
+    private val RESERVED_KEYS = setOf(
+        KEY_SYSTEM_LAUNCHER,
+        KEY_LANGUAGE,
+        KEY_THEME,
+        KEY_SORT_BY,
+        KEY_SORT_ORDER,
+        "pref_status_root",
+        "pref_status_lsposed"
+    )
+
+    @Suppress("DEPRECATION")
     fun getPrefs(context: Context): SharedPreferences {
-        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        return try {
+            context.getSharedPreferences(PREF_NAME, Context.MODE_WORLD_READABLE)
+        } catch (e: SecurityException) {
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        }
     }
 
+    @Suppress("DEPRECATION")
     fun getSysPrefs(context: Context): SharedPreferences {
-        return context.getSharedPreferences(SYS_PREF_NAME, Context.MODE_PRIVATE)
+        return try {
+            context.getSharedPreferences(SYS_PREF_NAME, Context.MODE_WORLD_READABLE)
+        } catch (e: SecurityException) {
+            context.getSharedPreferences(SYS_PREF_NAME, Context.MODE_PRIVATE)
+        }
     }
 
     fun saveSystemLauncher(context: Context, packageName: String) {
@@ -30,7 +50,7 @@ object PrefUtils {
         val prefs = getPrefs(context)
         val result = mutableMapOf<String, String>()
         for ((key, value) in prefs.all) {
-            if (value is String && value.isNotBlank()) {
+            if (key !in RESERVED_KEYS && value is String && value.isNotBlank()) {
                 result[key] = value
             }
         }
@@ -69,6 +89,13 @@ object PrefUtils {
             }
             if (sysPrefFile.exists()) {
                 sysPrefFile.setReadable(true, false)
+            }
+
+            try {
+                if (dataDir.exists()) {
+                    Runtime.getRuntime().exec(arrayOf("su", "-c", "chmod -R 777 ${dataDir.absolutePath}")).waitFor()
+                }
+            } catch (ignored: Throwable) {
             }
         } catch (ignored: Throwable) {
         }

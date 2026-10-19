@@ -13,7 +13,7 @@ import androidx.preference.PreferenceFragmentCompat
 class SettingsActivity : AppCompatActivity() {
 
     override fun attachBaseContext(newBase: android.content.Context) {
-        val prefs = newBase.getSharedPreferences(PrefUtils.PREF_NAME, android.content.Context.MODE_WORLD_READABLE)
+        val prefs = PrefUtils.getPrefs(newBase)
         val lang = prefs.getString(PrefUtils.KEY_LANGUAGE, "auto")
         if (lang == "zh" || lang == "en") {
             val locale = if (lang == "zh") java.util.Locale("zh", "CN") else java.util.Locale.ENGLISH
@@ -54,7 +54,12 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             preferenceManager.sharedPreferencesName = PrefUtils.PREF_NAME
-            preferenceManager.sharedPreferencesMode = android.content.Context.MODE_WORLD_READABLE
+            try {
+                @Suppress("DEPRECATION")
+                preferenceManager.sharedPreferencesMode = android.content.Context.MODE_WORLD_READABLE
+            } catch (e: Exception) {
+                preferenceManager.sharedPreferencesMode = android.content.Context.MODE_PRIVATE
+            }
             setPreferencesFromResource(R.xml.preferences, rootKey)
 
             // Dynamic status updates
@@ -99,4 +104,3 @@ class SettingsActivity : AppCompatActivity() {
         return false
     }
 }
-

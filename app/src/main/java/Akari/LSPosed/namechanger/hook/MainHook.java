@@ -1,5 +1,6 @@
 package Akari.LSPosed.namechanger.hook;
 
+import android.content.ComponentName;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageItemInfo;
 import android.content.pm.PackageManager;
@@ -10,7 +11,6 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -131,15 +131,58 @@ public class MainHook implements IXposedHookLoadPackage {
             XposedBridge.log("RenameAPPs: Hook5 FAIL: " + t.getMessage());
         }
 
-        // Hook 6: PackageItemInfo.readFromParcel(Parcel)
+        // Hook 6: LauncherActivityInfo.getLabel()
         try {
+            Class<?> laiClass = Class.forName("android.content.pm.LauncherActivityInfo", false, lpparam.classLoader);
             XposedHelpers.findAndHookMethod(
-                PackageItemInfo.class,
-                "readFromParcel",
-                Parcel.class,
+                laiClass,
+                "getLabel",
                 new XC_MethodHook() {
-                    private int count = 0;
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        checkAndReloadConfig();
+                        Object obj = param.thisObject;
+                        if (obj != null) {
+                            String pkg = null;
+                            try {
+                                ComponentName cn = (ComponentName) XposedHelpers.callMethod(obj, "getComponentName");
+                                if (cn != null) {
+                                    pkg = cn.getPackageName();
+                                }
+                            } catch (Throwable ignored) {
+                            }
 
+                            if (pkg == null) {
+                                try {
+                                    ApplicationInfo ai = (ApplicationInfo) XposedHelpers.callMethod(obj, "getApplicationInfo");
+                                    if (ai != null) {
+                                        pkg = ai.packageName;
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+
+                            if (pkg != null && NAME_MAP.containsKey(pkg)) {
+                                String newName = NAME_MAP.get(pkg);
+                                if (newName != null) {
+                                    param.setResult(newName);
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            hookCount++;
+            XposedBridge.log("RenameAPPs: Hook6 OK (LauncherActivityInfo.getLabel)");
+        } catch (Throwable t) {
+            XposedBridge.log("RenameAPPs: Hook6 FAIL: " + t.getMessage());
+        }
+
+        // Hook 7: PackageItemInfo Parcel constructors (fallback)
+        try {
+            XposedBridge.hookAllConstructors(
+                PackageItemInfo.class,
+                new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         checkAndReloadConfig();
@@ -151,35 +194,50 @@ public class MainHook implements IXposedHookLoadPackage {
                         String pkg = pii.packageName;
                         if (NAME_MAP.containsKey(pkg)) {
                             String newName = NAME_MAP.get(pkg);
-                            boolean fieldSet = false;
-                            String[] fieldNames = new String[] { "nonLocalizedLabel", "mNonLocalizedLabel", "label", "mLabel", "mName" };
-
-                            for (String fName : fieldNames) {
-                                try {
-                                    XposedHelpers.setObjectField(pii, fName, newName);
-                                    fieldSet = true;
-                                    break;
-                                } catch (Throwable ignored) {
-                                }
-                            }
-
+                            pii.nonLocalizedLabel = newName;
                             pii.labelRes = 0;
-                            count++;
-                            if (count <= 3) {
-                                if (fieldSet) {
-                                    XposedBridge.log("RenameAPPs: [readFromParcel] RENAMED " + pkg + " -> " + newName);
-                                } else {
-                                    XposedBridge.log("RenameAPPs: [readFromParcel] WARNING: no label field found for " + pkg);
-                                }
-                            }
                         }
                     }
                 }
             );
             hookCount++;
-            XposedBridge.log("RenameAPPs: Hook6 OK (PackageItemInfo.readFromParcel)");
+            XposedBridge.log("RenameAPPs: Hook7 OK (PackageItemInfo constructors)");
         } catch (Throwable t) {
-            XposedBridge.log("RenameAPPs: Hook6 FAIL: " + t.getMessage());
+            XposedBridge.log("RenameAPPs: Hook7 FAIL: " + t.getMessage());
+        }
+
+        // Hook 8: MIUI / HyperOS Launcher specific ShortcutInfo
+        if (packageName.contains("com.miui.home")) {
+            try {
+                Class<?> shortcutInfoClass = XposedHelpers.findClassIfExists("com.miui.home.launcher.ShortcutInfo", lpparam.classLoader);
+                if (shortcutInfoClass != null) {
+                    XposedHelpers.findAndHookMethod(shortcutInfoClass, "getTitle", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            checkAndReloadConfig();
+                            String pkg = null;
+                            try {
+                                pkg = (String) XposedHelpers.callMethod(param.thisObject, "getPackageName");
+                            } catch (Throwable ignored) {
+                                try {
+                                    pkg = (String) XposedHelpers.getObjectField(param.thisObject, "packageName");
+                                } catch (Throwable ignored2) {
+                                }
+                            }
+                            if (pkg != null && NAME_MAP.containsKey(pkg)) {
+                                String newName = NAME_MAP.get(pkg);
+                                if (newName != null) {
+                                    param.setResult(newName);
+                                }
+                            }
+                        }
+                    });
+                    hookCount++;
+                    XposedBridge.log("RenameAPPs: Hook8 OK (MIUI ShortcutInfo.getTitle)");
+                }
+            } catch (Throwable t) {
+                XposedBridge.log("RenameAPPs: Hook8 FAIL: " + t.getMessage());
+            }
         }
 
         XposedBridge.log("RenameAPPs: TOTAL hooks registered: " + hookCount);
@@ -224,6 +282,7 @@ public class MainHook implements IXposedHookLoadPackage {
         if (!sysConfigLoaded) {
             try {
                 XSharedPreferences sysPref = new XSharedPreferences(MODULE_PACKAGE, "sys_config");
+                sysPref.makeWorldReadable();
                 sysPref.reload();
                 cachedSystemLauncher = sysPref.getString("system_launcher", null);
             } catch (Throwable ignored) {
@@ -237,6 +296,8 @@ public class MainHook implements IXposedHookLoadPackage {
 
         String lower = pkg.toLowerCase();
         return lower.contains("launcher")
+            || lower.contains("lawnchair")
+            || lower.contains("home")
             || pkg.contains("com.miui.home")
             || pkg.contains("com.android.launcher")
             || pkg.contains("com.google.android.apps.nexuslauncher")
@@ -259,24 +320,23 @@ public class MainHook implements IXposedHookLoadPackage {
 
         if (pref == null) {
             pref = new XSharedPreferences(MODULE_PACKAGE, PREF_NAME);
+            pref.makeWorldReadable();
         }
 
-        if (pref.hasFileChanged()) {
-            try {
-                pref.reload();
-                Map<String, ?> all = pref.getAll();
+        try {
+            pref.reload();
+            Map<String, ?> all = pref.getAll();
+            if (all != null && !all.isEmpty()) {
                 NAME_MAP.clear();
-                if (all != null) {
-                    for (Map.Entry<String, ?> entry : all.entrySet()) {
-                        if (entry.getValue() != null && !entry.getValue().toString().trim().isEmpty()) {
-                            NAME_MAP.put(entry.getKey(), entry.getValue().toString());
-                        }
+                for (Map.Entry<String, ?> entry : all.entrySet()) {
+                    if (entry.getValue() != null && !entry.getValue().toString().trim().isEmpty()) {
+                        NAME_MAP.put(entry.getKey(), entry.getValue().toString());
                     }
                 }
                 XposedBridge.log("RenameAPPs: Config reloaded. " + NAME_MAP.size() + " entries.");
-            } catch (Throwable t) {
-                XposedBridge.log("RenameAPPs: Config reload failed: " + t.getMessage());
             }
+        } catch (Throwable t) {
+            XposedBridge.log("RenameAPPs: Config reload failed: " + t.getMessage());
         }
     }
 
@@ -291,4 +351,3 @@ public class MainHook implements IXposedHookLoadPackage {
         }
     }
 }
-
