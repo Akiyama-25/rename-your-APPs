@@ -12,7 +12,6 @@ on:
       alias:
         description: 'Key Alias'
         required: false
-        default: 'key0'
         type: string
       keystore_password:
         description: 'Keystore Password'
@@ -51,7 +50,7 @@ jobs:
       - name: Sign Release APK
         env:
           KEYSTORE_PATH: release.keystore
-          KEY_ALIAS: ${{ inputs.alias || secrets.KEY_ALIAS || 'key0' }}
+          KEY_ALIAS: ${{ inputs.alias || secrets.ALIAS || secrets.KEY_ALIAS || 'key0' }}
           KEYSTORE_PASSWORD: ${{ inputs.keystore_password || secrets.KEY_STORE_PASSWORD || secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ inputs.key_password || secrets.KEY_PASSWORD || inputs.keystore_password || secrets.KEY_STORE_PASSWORD || secrets.KEYSTORE_PASSWORD }}
         run: |
