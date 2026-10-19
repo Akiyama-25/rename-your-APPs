@@ -3,6 +3,7 @@ agp = "8.7.3"
 kotlin = "1.9.24"
 coreKtx = "1.12.0"
 appcompat = "1.6.1"
+activity = "1.8.2"
 material = "1.11.0"
 swiperefresh = "1.1.0"
 xposed = "82"
@@ -10,6 +11,7 @@ xposed = "82"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefresh" }
 xposed-api = { group = "de.robv.android.xposed", name = "api", version.ref = "xposed" }

@@ -2,11 +2,19 @@ package Akari.LSPosed.namechanger.ui
 
 import Akari.LSPosed.namechanger.R
 import Akari.LSPosed.namechanger.utils.PrefUtils
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 
@@ -27,8 +35,48 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val isDarkTheme = when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_YES -> true
+            else -> false
+        }
+        enableEdgeToEdge(
+            statusBarStyle = if (isDarkTheme) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            },
+            navigationBarStyle = if (isDarkTheme) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            }
+        )
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = !isDarkTheme
+        windowInsetsController.isAppearanceLightNavigationBars = !isDarkTheme
+
+        val settingsRoot = findViewById<android.view.View>(R.id.settingsRoot)
+        val appBar = findViewById<com.google.android.material.appbar.AppBarLayout>(R.id.settingsAppBar)
+        val container = findViewById<android.view.View>(R.id.settings_container)
+
+        ViewCompat.setOnApplyWindowInsetsListener(settingsRoot) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            appBar.updatePadding(
+                top = systemBars.top,
+                left = systemBars.left,
+                right = systemBars.right
+            )
+            container.updatePadding(
+                left = systemBars.left,
+                right = systemBars.right,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)

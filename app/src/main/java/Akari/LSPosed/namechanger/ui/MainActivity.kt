@@ -6,13 +6,23 @@ import Akari.LSPosed.namechanger.databinding.DialogRenameBinding
 import Akari.LSPosed.namechanger.utils.PrefUtils
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -43,6 +53,23 @@ class MainActivity : AppCompatActivity() {
     private var currentLang: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val isDarkTheme = when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_YES -> true
+            else -> false
+        }
+        enableEdgeToEdge(
+            statusBarStyle = if (isDarkTheme) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            },
+            navigationBarStyle = if (isDarkTheme) {
+                SystemBarStyle.dark(Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            }
+        )
+
         super.onCreate(savedInstanceState)
         val prefs = PrefUtils.getPrefs(this)
         currentLang = prefs.getString(PrefUtils.KEY_LANGUAGE, "auto") ?: "auto"
@@ -50,10 +77,33 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupEdgeToEdgeInsets(isDarkTheme)
+
         PrefUtils.makePrefWorldReadable(this)
         setupViews()
         checkModuleStatus()
         loadInstalledApps()
+    }
+
+    private fun setupEdgeToEdgeInsets(isDarkTheme: Boolean) {
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = !isDarkTheme
+        windowInsetsController.isAppearanceLightNavigationBars = !isDarkTheme
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.appBarLayout.updatePadding(
+                top = systemBars.top,
+                left = systemBars.left,
+                right = systemBars.right
+            )
+            binding.recyclerView.updatePadding(
+                left = systemBars.left,
+                right = systemBars.right,
+                bottom = systemBars.bottom + 16
+            )
+            insets
+        }
     }
 
     override fun onResume() {
