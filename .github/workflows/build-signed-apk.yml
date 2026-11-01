@@ -28,7 +28,7 @@ permissions:
 jobs:
   build:
     name: Build and Sign APK
-    runs-on: ubuntu-latest
+    runs-on: instabox-medium
 
     steps:
       - name: Checkout code
