@@ -28,7 +28,7 @@ permissions:
 jobs:
   build:
     name: Build and Sign APK
-    runs-on: instabox-medium
+    runs-on: [self-hosted, instabox]
 
     steps:
       - name: Checkout code
