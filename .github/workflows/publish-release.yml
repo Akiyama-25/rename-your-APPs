@@ -33,7 +33,7 @@ permissions:
 jobs:
   release:
     name: Build, Sign and Publish Release
-    runs-on: [self-hosted, instabox]
+    runs-on: [self-hosted, android-builder]
 
     steps:
       - name: Checkout code
